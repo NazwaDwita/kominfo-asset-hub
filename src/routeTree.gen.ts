@@ -9,38 +9,114 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TentangRouteImport } from './routes/tentang'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as InventarisIndexRouteImport } from './routes/inventaris.index'
+import { Route as InventarisBaruRouteImport } from './routes/inventaris.baru'
+import { Route as InventarisIdIndexRouteImport } from './routes/inventaris.$id.index'
+import { Route as InventarisIdEditRouteImport } from './routes/inventaris.$id.edit'
 
+const TentangRoute = TentangRouteImport.update({
+  id: '/tentang',
+  path: '/tentang',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InventarisIndexRoute = InventarisIndexRouteImport.update({
+  id: '/inventaris/',
+  path: '/inventaris/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InventarisBaruRoute = InventarisBaruRouteImport.update({
+  id: '/inventaris/baru',
+  path: '/inventaris/baru',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InventarisIdIndexRoute = InventarisIdIndexRouteImport.update({
+  id: '/inventaris/$id/',
+  path: '/inventaris/$id/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InventarisIdEditRoute = InventarisIdEditRouteImport.update({
+  id: '/inventaris/$id/edit',
+  path: '/inventaris/$id/edit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/tentang': typeof TentangRoute
+  '/inventaris/baru': typeof InventarisBaruRoute
+  '/inventaris/': typeof InventarisIndexRoute
+  '/inventaris/$id/edit': typeof InventarisIdEditRoute
+  '/inventaris/$id/': typeof InventarisIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/tentang': typeof TentangRoute
+  '/inventaris/baru': typeof InventarisBaruRoute
+  '/inventaris': typeof InventarisIndexRoute
+  '/inventaris/$id/edit': typeof InventarisIdEditRoute
+  '/inventaris/$id': typeof InventarisIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/tentang': typeof TentangRoute
+  '/inventaris/baru': typeof InventarisBaruRoute
+  '/inventaris/': typeof InventarisIndexRoute
+  '/inventaris/$id/edit': typeof InventarisIdEditRoute
+  '/inventaris/$id/': typeof InventarisIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/tentang'
+    | '/inventaris/baru'
+    | '/inventaris/'
+    | '/inventaris/$id/edit'
+    | '/inventaris/$id/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/tentang'
+    | '/inventaris/baru'
+    | '/inventaris'
+    | '/inventaris/$id/edit'
+    | '/inventaris/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/tentang'
+    | '/inventaris/baru'
+    | '/inventaris/'
+    | '/inventaris/$id/edit'
+    | '/inventaris/$id/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  TentangRoute: typeof TentangRoute
+  InventarisBaruRoute: typeof InventarisBaruRoute
+  InventarisIndexRoute: typeof InventarisIndexRoute
+  InventarisIdEditRoute: typeof InventarisIdEditRoute
+  InventarisIdIndexRoute: typeof InventarisIdIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/tentang': {
+      id: '/tentang'
+      path: '/tentang'
+      fullPath: '/tentang'
+      preLoaderRoute: typeof TentangRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +124,45 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/inventaris/': {
+      id: '/inventaris/'
+      path: '/inventaris'
+      fullPath: '/inventaris/'
+      preLoaderRoute: typeof InventarisIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inventaris/baru': {
+      id: '/inventaris/baru'
+      path: '/inventaris/baru'
+      fullPath: '/inventaris/baru'
+      preLoaderRoute: typeof InventarisBaruRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inventaris/$id/': {
+      id: '/inventaris/$id/'
+      path: '/inventaris/$id'
+      fullPath: '/inventaris/$id/'
+      preLoaderRoute: typeof InventarisIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inventaris/$id/edit': {
+      id: '/inventaris/$id/edit'
+      path: '/inventaris/$id/edit'
+      fullPath: '/inventaris/$id/edit'
+      preLoaderRoute: typeof InventarisIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  TentangRoute: TentangRoute,
+  InventarisBaruRoute: InventarisBaruRoute,
+  InventarisIndexRoute: InventarisIndexRoute,
+  InventarisIdEditRoute: InventarisIdEditRoute,
+  InventarisIdIndexRoute: InventarisIdIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
