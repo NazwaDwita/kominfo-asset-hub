@@ -44,7 +44,7 @@ function InventarisPage() {
   }, [items, search]);
 
   const setParam = <K extends keyof typeof search>(key: K, value: typeof search[K]) =>
-    navigate({ search: (prev) => ({ ...prev, [key]: value || undefined }) });
+    navigate({ search: (prev: typeof search) => ({ ...prev, [key]: value || undefined }) });
 
   const handleDelete = async (id: string, nama: string) => {
     if (!confirm(`Hapus "${nama}"? Tindakan ini tidak bisa dibatalkan.`)) return;
