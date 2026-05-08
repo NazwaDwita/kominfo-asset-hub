@@ -14,7 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      items: {
+        Row: {
+          catatan: string | null
+          created_at: string
+          gambar_url: string | null
+          id: string
+          jumlah: number
+          kategori: Database["public"]["Enums"]["item_category"]
+          lokasi: string | null
+          merek: string | null
+          model: string | null
+          nama: string
+          serial_number: string | null
+          status: Database["public"]["Enums"]["item_status"]
+          tanggal_pembelian: string | null
+          updated_at: string
+        }
+        Insert: {
+          catatan?: string | null
+          created_at?: string
+          gambar_url?: string | null
+          id?: string
+          jumlah?: number
+          kategori: Database["public"]["Enums"]["item_category"]
+          lokasi?: string | null
+          merek?: string | null
+          model?: string | null
+          nama: string
+          serial_number?: string | null
+          status?: Database["public"]["Enums"]["item_status"]
+          tanggal_pembelian?: string | null
+          updated_at?: string
+        }
+        Update: {
+          catatan?: string | null
+          created_at?: string
+          gambar_url?: string | null
+          id?: string
+          jumlah?: number
+          kategori?: Database["public"]["Enums"]["item_category"]
+          lokasi?: string | null
+          merek?: string | null
+          model?: string | null
+          nama?: string
+          serial_number?: string | null
+          status?: Database["public"]["Enums"]["item_status"]
+          tanggal_pembelian?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +73,12 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      item_category:
+        | "Komputer & Laptop"
+        | "Jaringan"
+        | "Audio/Video"
+        | "Peripheral"
+      item_status: "Bagus" | "Rusak" | "Dalam Perbaikan"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +205,14 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      item_category: [
+        "Komputer & Laptop",
+        "Jaringan",
+        "Audio/Video",
+        "Peripheral",
+      ],
+      item_status: ["Bagus", "Rusak", "Dalam Perbaikan"],
+    },
   },
 } as const
