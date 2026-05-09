@@ -102,7 +102,7 @@ function SiteHeader() {
               to={l.to}
               activeOptions={{ exact: l.to === "/" }}
               activeProps={{ className: "bg-foreground text-background" }}
-              className="rounded-full px-4 py-2 text-sm font-medium transition hover:bg-foreground/5"
+              className="nav-lift rounded-full px-4 py-2 text-sm font-medium hover:bg-foreground/5"
             >
               {l.label}
             </Link>
