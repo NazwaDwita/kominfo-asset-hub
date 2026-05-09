@@ -1,0 +1,17 @@
+INSERT INTO public.items (nama, kategori, status, merek, model, serial_number, lokasi, jumlah, catatan) VALUES
+('Laptop Kerja Staf TIK', 'Komputer & Laptop', 'Bagus', 'Lenovo', 'ThinkPad E14 Gen 4', 'LN-TP-E14-001', 'Ruang Bidang TIK', 5, 'Digunakan untuk operasional harian staf bidang TIK.'),
+('PC Desktop Layanan Publik', 'Komputer & Laptop', 'Bagus', 'HP', 'ProDesk 400 G7', 'HP-PD-400-014', 'Loket PPID', 3, 'Untuk layanan informasi publik.'),
+('Laptop Rapat Pimpinan', 'Komputer & Laptop', 'Dalam Perbaikan', 'ASUS', 'ExpertBook B1', 'AS-EB-B1-022', 'Ruang Kepala Dinas', 1, 'Baterai mulai drop, dijadwalkan ganti.'),
+('All-in-One PC Resepsionis', 'Komputer & Laptop', 'Rusak', 'Dell', 'OptiPlex 7400 AIO', 'DL-OP-7400-007', 'Lobi Diskominfo', 1, 'PSU mati total, menunggu sparepart.'),
+('Router Mikrotik Inti', 'Jaringan', 'Bagus', 'MikroTik', 'CCR2004-1G-12S+2XS', 'MT-CCR-2004-01', 'Ruang Server', 1, 'Routing inti antar VLAN dan internet.'),
+('Switch Distribusi Lantai 2', 'Jaringan', 'Bagus', 'Cisco', 'Catalyst 2960-X 48-port', 'CS-2960X-002', 'Rak Lantai 2', 2, 'Distribusi jaringan kantor lantai 2.'),
+('Access Point Aula', 'Jaringan', 'Dalam Perbaikan', 'Ubiquiti', 'UniFi U6-Pro', 'UB-U6P-009', 'Aula Serbaguna', 1, 'Konektivitas tidak stabil, sedang dianalisis.'),
+('Modem Backup ISP', 'Jaringan', 'Bagus', 'Huawei', 'HG8245H5', 'HW-HG8245-003', 'Ruang Server', 1, 'Backup koneksi internet sekunder.'),
+('Proyektor Ruang Rapat', 'Audio/Video', 'Bagus', 'Epson', 'EB-X06', 'EP-EBX06-004', 'Ruang Rapat Utama', 2, 'Untuk presentasi dan rapat.'),
+('Kamera Mirrorless Liputan', 'Audio/Video', 'Bagus', 'Sony', 'Alpha A6400', 'SN-A6400-011', 'Bidang IKP', 1, 'Dokumentasi kegiatan dinas.'),
+('Mic Wireless Konferensi', 'Audio/Video', 'Rusak', 'Shure', 'BLX24/PG58', 'SH-BLX24-005', 'Ruang Aula', 2, 'Salah satu unit tidak menerima sinyal.'),
+('Speaker Aktif Aula', 'Audio/Video', 'Bagus', 'Yamaha', 'DBR12', 'YM-DBR12-008', 'Aula Serbaguna', 2, 'Sound system kegiatan formal.'),
+('Printer Multifungsi Sekretariat', 'Peripheral', 'Bagus', 'Canon', 'imageCLASS MF445dw', 'CN-MF445-006', 'Sekretariat', 2, 'Cetak, scan, fotokopi dokumen.'),
+('UPS Server', 'Peripheral', 'Bagus', 'APC', 'Smart-UPS 1500VA', 'APC-SU1500-010', 'Ruang Server', 2, 'Backup daya untuk perangkat kritikal.'),
+('Scanner Dokumen Arsip', 'Peripheral', 'Dalam Perbaikan', 'Fujitsu', 'ScanSnap iX1600', 'FJ-IX1600-013', 'Bidang Persandian', 1, 'Roller perlu dibersihkan/ganti.'),
+('Keyboard & Mouse Bundle', 'Peripheral', 'Bagus', 'Logitech', 'MK270', 'LG-MK270-021', 'Gudang TIK', 8, 'Stok cadangan untuk staf baru.');
