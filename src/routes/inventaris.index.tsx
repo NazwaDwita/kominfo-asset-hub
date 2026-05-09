@@ -2,9 +2,11 @@ import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
 import { listItems, deleteItem, CATEGORIES, STATUSES, STATUS_STYLES, CATEGORY_EMOJI, type ItemCategory, type ItemStatus } from "@/lib/items";
-import { Search, Trash2, Pencil, Eye } from "lucide-react";
+import { Search, Trash2, Pencil, Eye, Download } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
+import { useAuth } from "@/lib/auth";
+import { ExportPanel } from "@/components/ExportPanel";
 
 const searchSchema = z.object({
   q: z.string().optional(),
@@ -27,6 +29,8 @@ function InventarisPage() {
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
   const router = useRouter();
+  const { isAdmin } = useAuth();
+  const [exportOpen, setExportOpen] = useState(false);
   const { data: items = [], isLoading, refetch } = useQuery({ queryKey: ["items"], queryFn: listItems });
   const [localQ, setLocalQ] = useState(search.q ?? "");
 
@@ -95,12 +99,22 @@ function InventarisPage() {
           <option value="">Semua status</option>
           {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
         </select>
-        <Link
-          to="/inventaris/baru"
-          className="inline-flex items-center justify-center rounded-full bg-accent px-5 py-3 text-sm font-medium text-accent-foreground"
-        >
-          + Tambah
-        </Link>
+        {isAdmin && (
+          <>
+            <button
+              onClick={() => setExportOpen(true)}
+              className="inline-flex items-center justify-center gap-1.5 rounded-full border-2 border-foreground bg-card px-5 py-3 text-sm font-medium hover:bg-foreground hover:text-background"
+            >
+              <Download className="h-4 w-4" /> Ekspor
+            </button>
+            <Link
+              to="/inventaris/baru"
+              className="inline-flex items-center justify-center rounded-full bg-accent px-5 py-3 text-sm font-medium text-accent-foreground"
+            >
+              + Tambah
+            </Link>
+          </>
+        )}
       </div>
 
       {/* Quick chip filters */}
@@ -134,8 +148,7 @@ function InventarisPage() {
           <div className="rounded-2xl border-2 border-dashed border-foreground/20 py-20 text-center">
             <p className="font-display text-2xl font-bold">Belum ada alat di sini.</p>
             <p className="mt-2 text-sm text-muted-foreground">
-              Coba ubah filter, atau{" "}
-              <Link to="/inventaris/baru" className="underline">daftarkan alat baru</Link>.
+              {isAdmin ? <>Coba ubah filter, atau <Link to="/inventaris/baru" className="underline">daftarkan alat baru</Link>.</> : "Coba ubah filter pencarian."}
             </p>
           </div>
         ) : (
@@ -173,18 +186,23 @@ function InventarisPage() {
                   <Link to="/inventaris/$id" params={{ id: it.id }} className="flex flex-1 items-center justify-center gap-1 py-3 text-xs font-medium hover:bg-foreground/5">
                     <Eye className="h-3.5 w-3.5" /> Detail
                   </Link>
-                  <Link to="/inventaris/$id/edit" params={{ id: it.id }} className="flex flex-1 items-center justify-center gap-1 py-3 text-xs font-medium hover:bg-foreground/5">
-                    <Pencil className="h-3.5 w-3.5" /> Ubah
-                  </Link>
-                  <button onClick={() => handleDelete(it.id, it.nama)} className="flex flex-1 items-center justify-center gap-1 py-3 text-xs font-medium text-destructive hover:bg-destructive/10">
-                    <Trash2 className="h-3.5 w-3.5" /> Hapus
-                  </button>
+                  {isAdmin && (
+                    <>
+                      <Link to="/inventaris/$id/edit" params={{ id: it.id }} className="flex flex-1 items-center justify-center gap-1 py-3 text-xs font-medium hover:bg-foreground/5">
+                        <Pencil className="h-3.5 w-3.5" /> Ubah
+                      </Link>
+                      <button onClick={() => handleDelete(it.id, it.nama)} className="flex flex-1 items-center justify-center gap-1 py-3 text-xs font-medium text-destructive hover:bg-destructive/10">
+                        <Trash2 className="h-3.5 w-3.5" /> Hapus
+                      </button>
+                    </>
+                  )}
                 </div>
               </li>
             ))}
           </ul>
         )}
       </div>
+      {exportOpen && <ExportPanel items={items} onClose={() => setExportOpen(false)} />}
     </div>
   );
 }

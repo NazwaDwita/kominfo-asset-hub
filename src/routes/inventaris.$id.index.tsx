@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getItem, deleteItem, STATUS_STYLES, CATEGORY_EMOJI } from "@/lib/items";
 import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/inventaris/$id/")({
   head: ({ params }) => ({
@@ -14,6 +15,7 @@ export const Route = createFileRoute("/inventaris/$id/")({
 function DetailPage() {
   const { id } = Route.useParams();
   const router = useRouter();
+  const { isAdmin } = useAuth();
   const { data: item, isLoading } = useQuery({ queryKey: ["item", id], queryFn: () => getItem(id) });
 
   const handleDelete = async () => {
@@ -87,21 +89,23 @@ function DetailPage() {
             ))}
           </dl>
 
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link
-              to="/inventaris/$id/edit"
-              params={{ id: item.id }}
-              className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background"
-            >
-              <Pencil className="h-4 w-4" /> Ubah data
-            </Link>
-            <button
-              onClick={handleDelete}
-              className="inline-flex items-center gap-2 rounded-full border border-destructive/30 bg-destructive/10 px-5 py-2.5 text-sm font-medium text-destructive hover:bg-destructive hover:text-destructive-foreground"
-            >
-              <Trash2 className="h-4 w-4" /> Hapus
-            </button>
-          </div>
+          {isAdmin && (
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link
+                to="/inventaris/$id/edit"
+                params={{ id: item.id }}
+                className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-medium text-background"
+              >
+                <Pencil className="h-4 w-4" /> Ubah data
+              </Link>
+              <button
+                onClick={handleDelete}
+                className="inline-flex items-center gap-2 rounded-full border border-destructive/30 bg-destructive/10 px-5 py-2.5 text-sm font-medium text-destructive hover:bg-destructive hover:text-destructive-foreground"
+              >
+                <Trash2 className="h-4 w-4" /> Hapus
+              </button>
+            </div>
+          )}
         </div>
 
         {/* RIGHT */}
