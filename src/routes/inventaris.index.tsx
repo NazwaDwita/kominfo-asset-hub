@@ -202,6 +202,7 @@ function InventarisPage() {
           </ul>
         )}
       </div>
+      {exportOpen && <ExportPanel items={items} onClose={() => setExportOpen(false)} />}
     </div>
   );
 }
