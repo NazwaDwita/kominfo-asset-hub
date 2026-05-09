@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_log: {
+        Row: {
+          aksi: string
+          alat_id: string | null
+          alat_nama: string
+          dilakukan_oleh: string | null
+          id: string
+          perubahan: Json | null
+          waktu: string
+        }
+        Insert: {
+          aksi: string
+          alat_id?: string | null
+          alat_nama: string
+          dilakukan_oleh?: string | null
+          id?: string
+          perubahan?: Json | null
+          waktu?: string
+        }
+        Update: {
+          aksi?: string
+          alat_id?: string | null
+          alat_nama?: string
+          dilakukan_oleh?: string | null
+          id?: string
+          perubahan?: Json | null
+          waktu?: string
+        }
+        Relationships: []
+      }
       items: {
         Row: {
           catatan: string | null
@@ -65,12 +95,33 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          role: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id: string
+          role?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          role?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_admin: { Args: { _uid: string }; Returns: boolean }
     }
     Enums: {
       item_category:
