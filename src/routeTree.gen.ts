@@ -10,15 +10,22 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TentangRouteImport } from './routes/tentang'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as InventarisIndexRouteImport } from './routes/inventaris.index'
 import { Route as InventarisBaruRouteImport } from './routes/inventaris.baru'
+import { Route as AdminRiwayatRouteImport } from './routes/admin.riwayat'
 import { Route as InventarisIdIndexRouteImport } from './routes/inventaris.$id.index'
 import { Route as InventarisIdEditRouteImport } from './routes/inventaris.$id.edit'
 
 const TentangRoute = TentangRouteImport.update({
   id: '/tentang',
   path: '/tentang',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -36,6 +43,11 @@ const InventarisBaruRoute = InventarisBaruRouteImport.update({
   path: '/inventaris/baru',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRiwayatRoute = AdminRiwayatRouteImport.update({
+  id: '/admin/riwayat',
+  path: '/admin/riwayat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const InventarisIdIndexRoute = InventarisIdIndexRouteImport.update({
   id: '/inventaris/$id/',
   path: '/inventaris/$id/',
@@ -49,7 +61,9 @@ const InventarisIdEditRoute = InventarisIdEditRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
   '/tentang': typeof TentangRoute
+  '/admin/riwayat': typeof AdminRiwayatRoute
   '/inventaris/baru': typeof InventarisBaruRoute
   '/inventaris/': typeof InventarisIndexRoute
   '/inventaris/$id/edit': typeof InventarisIdEditRoute
@@ -57,7 +71,9 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
   '/tentang': typeof TentangRoute
+  '/admin/riwayat': typeof AdminRiwayatRoute
   '/inventaris/baru': typeof InventarisBaruRoute
   '/inventaris': typeof InventarisIndexRoute
   '/inventaris/$id/edit': typeof InventarisIdEditRoute
@@ -66,7 +82,9 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
   '/tentang': typeof TentangRoute
+  '/admin/riwayat': typeof AdminRiwayatRoute
   '/inventaris/baru': typeof InventarisBaruRoute
   '/inventaris/': typeof InventarisIndexRoute
   '/inventaris/$id/edit': typeof InventarisIdEditRoute
@@ -76,7 +94,9 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/login'
     | '/tentang'
+    | '/admin/riwayat'
     | '/inventaris/baru'
     | '/inventaris/'
     | '/inventaris/$id/edit'
@@ -84,7 +104,9 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/login'
     | '/tentang'
+    | '/admin/riwayat'
     | '/inventaris/baru'
     | '/inventaris'
     | '/inventaris/$id/edit'
@@ -92,7 +114,9 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/login'
     | '/tentang'
+    | '/admin/riwayat'
     | '/inventaris/baru'
     | '/inventaris/'
     | '/inventaris/$id/edit'
@@ -101,7 +125,9 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  LoginRoute: typeof LoginRoute
   TentangRoute: typeof TentangRoute
+  AdminRiwayatRoute: typeof AdminRiwayatRoute
   InventarisBaruRoute: typeof InventarisBaruRoute
   InventarisIndexRoute: typeof InventarisIndexRoute
   InventarisIdEditRoute: typeof InventarisIdEditRoute
@@ -115,6 +141,13 @@ declare module '@tanstack/react-router' {
       path: '/tentang'
       fullPath: '/tentang'
       preLoaderRoute: typeof TentangRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -138,6 +171,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InventarisBaruRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/riwayat': {
+      id: '/admin/riwayat'
+      path: '/admin/riwayat'
+      fullPath: '/admin/riwayat'
+      preLoaderRoute: typeof AdminRiwayatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/inventaris/$id/': {
       id: '/inventaris/$id/'
       path: '/inventaris/$id'
@@ -157,7 +197,9 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  LoginRoute: LoginRoute,
   TentangRoute: TentangRoute,
+  AdminRiwayatRoute: AdminRiwayatRoute,
   InventarisBaruRoute: InventarisBaruRoute,
   InventarisIndexRoute: InventarisIndexRoute,
   InventarisIdEditRoute: InventarisIdEditRoute,
@@ -166,3 +208,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
