@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getItem, deleteItem, STATUS_STYLES, CATEGORY_EMOJI } from "@/lib/items";
 import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/inventaris/$id/")({
   head: ({ params }) => ({
