@@ -2,9 +2,11 @@ import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
 import { listItems, deleteItem, CATEGORIES, STATUSES, STATUS_STYLES, CATEGORY_EMOJI, type ItemCategory, type ItemStatus } from "@/lib/items";
-import { Search, Trash2, Pencil, Eye } from "lucide-react";
+import { Search, Trash2, Pencil, Eye, Download } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
+import { useAuth } from "@/lib/auth";
+import { ExportPanel } from "@/components/ExportPanel";
 
 const searchSchema = z.object({
   q: z.string().optional(),
@@ -27,6 +29,8 @@ function InventarisPage() {
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
   const router = useRouter();
+  const { isAdmin } = useAuth();
+  const [exportOpen, setExportOpen] = useState(false);
   const { data: items = [], isLoading, refetch } = useQuery({ queryKey: ["items"], queryFn: listItems });
   const [localQ, setLocalQ] = useState(search.q ?? "");
 
