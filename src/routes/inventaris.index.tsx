@@ -99,12 +99,22 @@ function InventarisPage() {
           <option value="">Semua status</option>
           {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
         </select>
-        <Link
-          to="/inventaris/baru"
-          className="inline-flex items-center justify-center rounded-full bg-accent px-5 py-3 text-sm font-medium text-accent-foreground"
-        >
-          + Tambah
-        </Link>
+        {isAdmin && (
+          <>
+            <button
+              onClick={() => setExportOpen(true)}
+              className="inline-flex items-center justify-center gap-1.5 rounded-full border-2 border-foreground bg-card px-5 py-3 text-sm font-medium hover:bg-foreground hover:text-background"
+            >
+              <Download className="h-4 w-4" /> Ekspor
+            </button>
+            <Link
+              to="/inventaris/baru"
+              className="inline-flex items-center justify-center rounded-full bg-accent px-5 py-3 text-sm font-medium text-accent-foreground"
+            >
+              + Tambah
+            </Link>
+          </>
+        )}
       </div>
 
       {/* Quick chip filters */}
