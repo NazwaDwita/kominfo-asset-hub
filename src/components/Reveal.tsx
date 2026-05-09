@@ -24,7 +24,7 @@ export function Reveal({
   variant = "fade-up",
   delay = 0,
   className = "",
-  once = true,
+  once = false,
   as: Tag = "div",
 }: RevealProps) {
   const ref = useRef<HTMLElement | null>(null);
