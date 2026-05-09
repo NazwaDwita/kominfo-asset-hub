@@ -1,11 +1,12 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 import { CATEGORIES, STATUSES, createItem, type ItemInsert } from "@/lib/items";
 import { ArrowLeft } from "lucide-react";
+import { useAuth } from "@/lib/auth";
 
 const schema = z.object({
   nama: z.string().trim().min(1, "Nama wajib").max(120),
@@ -29,11 +30,20 @@ export const Route = createFileRoute("/inventaris/baru")({
 
 function NewItemPage() {
   const router = useRouter();
+  const { user, isAdmin, loading } = useAuth();
   const [submitting, setSubmitting] = useState(false);
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: { status: "Bagus", jumlah: 1, kategori: "Komputer & Laptop" },
   });
+
+  useEffect(() => {
+    if (!loading && (!user || !isAdmin)) {
+      router.navigate({ to: "/login", search: { redirect: "/inventaris/baru" } });
+    }
+  }, [loading, user, isAdmin, router]);
+
+  if (loading || !user || !isAdmin) return <p className="mx-auto max-w-3xl px-6 py-20 text-center">Memuat…</p>;
 
   const onSubmit = async (data: FormData) => {
     setSubmitting(true);
