@@ -83,9 +83,24 @@ function RootShell({ children }: { children: React.ReactNode }) {
 }
 
 function SiteHeader() {
+  const { user, isAdmin, signOut } = useAuth();
+  const router = useRouter();
+
+  const baseLinks = [
+    { to: "/", label: "Beranda" },
+    { to: "/inventaris", label: "Inventaris" },
+    { to: "/tentang", label: "Tentang" },
+  ];
+  const links = isAdmin ? [...baseLinks, { to: "/admin/riwayat", label: "Riwayat" }] : baseLinks;
+
+  const handleLogout = async () => {
+    await signOut();
+    router.navigate({ to: "/" });
+  };
+
   return (
     <header className="sticky top-0 z-40 border-b border-foreground/10 bg-background/80 backdrop-blur">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-6 py-4">
         <Link to="/" className="group flex items-center gap-2">
           <span className="grid h-9 w-9 place-items-center rounded-md bg-primary text-primary-foreground font-display font-black">K</span>
           <div className="leading-tight">
@@ -94,11 +109,7 @@ function SiteHeader() {
           </div>
         </Link>
         <nav className="hidden items-center gap-1 md:flex">
-          {[
-            { to: "/", label: "Beranda" },
-            { to: "/inventaris", label: "Inventaris" },
-            { to: "/tentang", label: "Tentang" },
-          ].map((l) => (
+          {links.map((l) => (
             <Link
               key={l.to}
               to={l.to}
@@ -110,12 +121,29 @@ function SiteHeader() {
             </Link>
           ))}
         </nav>
-        <Link
-          to="/inventaris/baru"
-          className="rounded-full bg-accent px-4 py-2 text-sm font-medium text-accent-foreground shadow-soft transition hover:translate-y-[-1px]"
-        >
-          + Daftarkan alat
-        </Link>
+        <div className="flex items-center gap-2">
+          {user && isAdmin && (
+            <span className="hidden rounded-full bg-accent px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-accent-foreground sm:inline-block">
+              ● Admin
+            </span>
+          )}
+          {user ? (
+            <button
+              onClick={handleLogout}
+              title={user.email ?? ""}
+              className="inline-flex items-center gap-1.5 rounded-full border border-foreground/20 px-3 py-2 text-sm font-medium hover:bg-foreground/5"
+            >
+              <LogOut className="h-4 w-4" /> <span className="hidden sm:inline">Keluar</span>
+            </button>
+          ) : (
+            <Link
+              to="/login"
+              className="inline-flex items-center gap-1.5 rounded-full border-2 border-foreground px-3 py-2 text-sm font-medium hover:bg-foreground hover:text-background"
+            >
+              <LogIn className="h-4 w-4" /> <span className="hidden sm:inline">Masuk Admin</span>
+            </Link>
+          )}
+        </div>
       </div>
     </header>
   );
@@ -155,12 +183,14 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="flex min-h-screen flex-col">
-        <SiteHeader />
-        <main className="flex-1"><Outlet /></main>
-        <SiteFooter />
-      </div>
-      <Toaster />
+      <AuthProvider>
+        <div className="flex min-h-screen flex-col">
+          <SiteHeader />
+          <main className="flex-1"><Outlet /></main>
+          <SiteFooter />
+        </div>
+        <Toaster />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
