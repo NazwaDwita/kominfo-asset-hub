@@ -87,6 +87,7 @@ function EditPage() {
     }
   };
 
+  if (loading || !user || !isAdmin) return <p className="mx-auto max-w-3xl px-6 py-20 text-center">Memuat…</p>;
   if (isLoading) return <p className="mx-auto max-w-3xl px-6 py-20 text-center">Memuat…</p>;
   if (!item) return <p className="mx-auto max-w-3xl px-6 py-20 text-center">Alat tidak ditemukan</p>;
 
