@@ -7,6 +7,7 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { CATEGORIES, STATUSES, getItem, updateItem, type ItemInsert } from "@/lib/items";
 import { ArrowLeft } from "lucide-react";
+import { useAuth } from "@/lib/auth";
 
 const schema = z.object({
   nama: z.string().trim().min(1).max(120),
@@ -31,11 +32,18 @@ export const Route = createFileRoute("/inventaris/$id/edit")({
 function EditPage() {
   const { id } = Route.useParams();
   const router = useRouter();
-  const { data: item, isLoading } = useQuery({ queryKey: ["item", id], queryFn: () => getItem(id) });
+  const { user, isAdmin, loading } = useAuth();
+  const { data: item, isLoading } = useQuery({ queryKey: ["item", id], queryFn: () => getItem(id), enabled: !!user && isAdmin });
   const [submitting, setSubmitting] = useState(false);
   const { register, handleSubmit, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
   });
+
+  useEffect(() => {
+    if (!loading && (!user || !isAdmin)) {
+      router.navigate({ to: "/login", search: { redirect: `/inventaris/${id}/edit` } });
+    }
+  }, [loading, user, isAdmin, router, id]);
 
   useEffect(() => {
     if (item) reset({
