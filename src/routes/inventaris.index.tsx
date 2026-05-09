@@ -148,8 +148,7 @@ function InventarisPage() {
           <div className="rounded-2xl border-2 border-dashed border-foreground/20 py-20 text-center">
             <p className="font-display text-2xl font-bold">Belum ada alat di sini.</p>
             <p className="mt-2 text-sm text-muted-foreground">
-              Coba ubah filter, atau{" "}
-              <Link to="/inventaris/baru" className="underline">daftarkan alat baru</Link>.
+              {isAdmin ? <>Coba ubah filter, atau <Link to="/inventaris/baru" className="underline">daftarkan alat baru</Link>.</> : "Coba ubah filter pencarian."}
             </p>
           </div>
         ) : (
@@ -187,12 +186,16 @@ function InventarisPage() {
                   <Link to="/inventaris/$id" params={{ id: it.id }} className="flex flex-1 items-center justify-center gap-1 py-3 text-xs font-medium hover:bg-foreground/5">
                     <Eye className="h-3.5 w-3.5" /> Detail
                   </Link>
-                  <Link to="/inventaris/$id/edit" params={{ id: it.id }} className="flex flex-1 items-center justify-center gap-1 py-3 text-xs font-medium hover:bg-foreground/5">
-                    <Pencil className="h-3.5 w-3.5" /> Ubah
-                  </Link>
-                  <button onClick={() => handleDelete(it.id, it.nama)} className="flex flex-1 items-center justify-center gap-1 py-3 text-xs font-medium text-destructive hover:bg-destructive/10">
-                    <Trash2 className="h-3.5 w-3.5" /> Hapus
-                  </button>
+                  {isAdmin && (
+                    <>
+                      <Link to="/inventaris/$id/edit" params={{ id: it.id }} className="flex flex-1 items-center justify-center gap-1 py-3 text-xs font-medium hover:bg-foreground/5">
+                        <Pencil className="h-3.5 w-3.5" /> Ubah
+                      </Link>
+                      <button onClick={() => handleDelete(it.id, it.nama)} className="flex flex-1 items-center justify-center gap-1 py-3 text-xs font-medium text-destructive hover:bg-destructive/10">
+                        <Trash2 className="h-3.5 w-3.5" /> Hapus
+                      </button>
+                    </>
+                  )}
                 </div>
               </li>
             ))}
