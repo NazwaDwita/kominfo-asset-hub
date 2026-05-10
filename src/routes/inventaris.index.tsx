@@ -2,16 +2,28 @@ import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
 import { listItems, deleteItem, CATEGORIES, STATUSES, STATUS_STYLES, CATEGORY_EMOJI, type ItemCategory, type ItemStatus } from "@/lib/items";
-import { Search, Trash2, Pencil, Eye, Download } from "lucide-react";
+import { Search, Trash2, Pencil, Eye, Download, AlertTriangle, ArrowUpDown } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { useAuth } from "@/lib/auth";
 import { ExportPanel } from "@/components/ExportPanel";
 
+const SORTS = ["terbaru", "terlama", "az", "za", "terakhir-diubah", "lama-perbaikan"] as const;
+type Sort = (typeof SORTS)[number];
+const SORT_LABEL: Record<Sort, string> = {
+  "terbaru": "Terbaru ditambahkan",
+  "terlama": "Terlama ditambahkan",
+  "az": "Nama A → Z",
+  "za": "Nama Z → A",
+  "terakhir-diubah": "Terakhir diubah",
+  "lama-perbaikan": "Paling lama diperbaiki",
+};
+
 const searchSchema = z.object({
   q: z.string().optional(),
   kategori: z.enum(["Komputer & Laptop", "Jaringan", "Audio/Video", "Peripheral"]).optional(),
   status: z.enum(["Bagus", "Rusak", "Dalam Perbaikan"]).optional(),
+  sort: z.enum(SORTS).optional(),
 });
 
 export const Route = createFileRoute("/inventaris/")({
@@ -19,11 +31,14 @@ export const Route = createFileRoute("/inventaris/")({
   head: () => ({
     meta: [
       { title: "Daftar Inventaris — Kominfo Pekanbaru" },
-      { name: "description", content: "Cari dan filter seluruh alat elektronik berdasarkan kategori dan status." },
+      { name: "description", content: "Cari, sortir, dan filter seluruh alat elektronik berdasarkan kategori dan status." },
     ],
   }),
   component: InventarisPage,
 });
+
+const SERVICE_THRESHOLD_DAYS = 14;
+const dayDiff = (iso: string) => Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
 
 function InventarisPage() {
   const search = Route.useSearch();
@@ -34,8 +49,15 @@ function InventarisPage() {
   const { data: items = [], isLoading, refetch } = useQuery({ queryKey: ["items"], queryFn: listItems });
   const [localQ, setLocalQ] = useState(search.q ?? "");
 
+  const sort: Sort = search.sort ?? "terbaru";
+
+  const overdueRepairs = useMemo(
+    () => items.filter((it) => it.status === "Dalam Perbaikan" && dayDiff(it.updated_at) >= SERVICE_THRESHOLD_DAYS),
+    [items]
+  );
+
   const filtered = useMemo(() => {
-    return items.filter((it) => {
+    const list = items.filter((it) => {
       if (search.kategori && it.kategori !== search.kategori) return false;
       if (search.status && it.status !== search.status) return false;
       const q = (search.q ?? "").trim().toLowerCase();
@@ -45,7 +67,23 @@ function InventarisPage() {
       }
       return true;
     });
-  }, [items, search]);
+    const sorted = [...list];
+    switch (sort) {
+      case "az": sorted.sort((a, b) => a.nama.localeCompare(b.nama, "id")); break;
+      case "za": sorted.sort((a, b) => b.nama.localeCompare(a.nama, "id")); break;
+      case "terlama": sorted.sort((a, b) => +new Date(a.created_at) - +new Date(b.created_at)); break;
+      case "terakhir-diubah": sorted.sort((a, b) => +new Date(b.updated_at) - +new Date(a.updated_at)); break;
+      case "lama-perbaikan":
+        sorted.sort((a, b) => {
+          const ar = a.status === "Dalam Perbaikan" ? +new Date(a.updated_at) : Infinity;
+          const br = b.status === "Dalam Perbaikan" ? +new Date(b.updated_at) : Infinity;
+          return ar - br;
+        });
+        break;
+      default: sorted.sort((a, b) => +new Date(b.created_at) - +new Date(a.created_at));
+    }
+    return sorted;
+  }, [items, search, sort]);
 
   const setParam = <K extends keyof typeof search>(key: K, value: typeof search[K]) =>
     navigate({ search: (prev: typeof search) => ({ ...prev, [key]: value || undefined }) });
@@ -70,8 +108,30 @@ function InventarisPage() {
         <p className="text-muted-foreground">Cari, sortir, dan kelola seluruh alat elektronik.</p>
       </div>
 
+      {/* Service notification */}
+      {overdueRepairs.length > 0 && (
+        <div className="mt-6 flex items-start gap-3 rounded-2xl border-2 border-status-repair bg-status-repair/10 p-4 animate-fade-up">
+          <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-status-repair" />
+          <div className="flex-1">
+            <p className="font-display text-base font-bold">
+              {overdueRepairs.length} alat sudah lebih dari {SERVICE_THRESHOLD_DAYS} hari "Dalam Perbaikan"
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {overdueRepairs.slice(0, 3).map((it) => `${it.nama} (${dayDiff(it.updated_at)} hari)`).join(" · ")}
+              {overdueRepairs.length > 3 && ` · +${overdueRepairs.length - 3} lainnya`}
+            </p>
+          </div>
+          <button
+            onClick={() => navigate({ search: { status: "Dalam Perbaikan", sort: "lama-perbaikan" } })}
+            className="hidden whitespace-nowrap rounded-full border-2 border-status-repair px-3 py-1.5 text-xs font-medium hover:bg-status-repair hover:text-background sm:inline-block"
+          >
+            Lihat semua
+          </button>
+        </div>
+      )}
+
       {/* Filter bar */}
-      <div className="mt-8 grid gap-3 md:grid-cols-[1fr_auto_auto_auto]">
+      <div className="mt-8 grid gap-3 md:grid-cols-[1fr_auto_auto_auto_auto]">
         <div className="relative">
           <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
@@ -99,8 +159,18 @@ function InventarisPage() {
           <option value="">Semua status</option>
           {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
         </select>
+        <div className="relative">
+          <ArrowUpDown className="pointer-events-none absolute left-3.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+          <select
+            value={sort}
+            onChange={(e) => setParam("sort", e.target.value as Sort)}
+            className="w-full rounded-full border-2 border-foreground bg-card py-3 pl-9 pr-4 text-sm font-medium outline-none"
+          >
+            {SORTS.map((s) => <option key={s} value={s}>{SORT_LABEL[s]}</option>)}
+          </select>
+        </div>
         {isAdmin && (
-          <>
+          <div className="flex gap-2">
             <button
               onClick={() => setExportOpen(true)}
               className="inline-flex items-center justify-center gap-1.5 rounded-full border-2 border-foreground bg-card px-5 py-3 text-sm font-medium hover:bg-foreground hover:text-background"
@@ -113,13 +183,13 @@ function InventarisPage() {
             >
               + Tambah
             </Link>
-          </>
+          </div>
         )}
       </div>
 
       {/* Quick chip filters */}
       <div className="mt-4 flex flex-wrap gap-2">
-        {(search.kategori || search.status || search.q) && (
+        {(search.kategori || search.status || search.q || search.sort) && (
           <button
             onClick={() => navigate({ search: {} })}
             className="rounded-full border border-foreground/20 bg-foreground px-3 py-1 text-xs text-background"
@@ -153,12 +223,19 @@ function InventarisPage() {
           </div>
         ) : (
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {filtered.map((it, i) => (
+            {filtered.map((it, i) => {
+              const overdue = it.status === "Dalam Perbaikan" && dayDiff(it.updated_at) >= SERVICE_THRESHOLD_DAYS;
+              return (
               <li
                 key={it.id}
                 className="group relative flex flex-col overflow-hidden rounded-xl border-2 border-foreground bg-card transition hover:-translate-y-1 hover:shadow-paper animate-fade-up"
                 style={{ animationDelay: `${Math.min(i * 40, 400)}ms` }}
               >
+                {overdue && (
+                  <span className="absolute left-3 top-3 z-10 inline-flex items-center gap-1 rounded-full bg-status-repair px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-background">
+                    <AlertTriangle className="h-3 w-3" /> {dayDiff(it.updated_at)}h
+                  </span>
+                )}
                 <div className="flex items-start justify-between gap-3 border-b-2 border-foreground/10 p-5">
                   <div className="min-w-0 flex-1">
                     <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
@@ -198,7 +275,8 @@ function InventarisPage() {
                   )}
                 </div>
               </li>
-            ))}
+              );
+            })}
           </ul>
         )}
       </div>
