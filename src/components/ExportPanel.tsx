@@ -7,13 +7,41 @@ import { X, FileSpreadsheet, FileText } from "lucide-react";
 
 const COLS = ["No", "Nama Alat", "Kategori", "Merek/Model", "Nomor Seri", "Lokasi", "Kondisi", "Tanggal Masuk", "Keterangan"];
 
+type Periode = "semua" | "tahunan" | "semester-1" | "semester-2";
+const PERIODE_LABEL: Record<Periode, string> = {
+  "semua": "Semua waktu",
+  "tahunan": "Tahunan (Jan – Des)",
+  "semester-1": "Semester 1 (Jan – Jun)",
+  "semester-2": "Semester 2 (Jul – Des)",
+};
+
 export function ExportPanel({ items, onClose }: { items: Item[]; onClose: () => void }) {
   const [kategori, setKategori] = useState<ItemCategory | "">("");
   const [statuses, setStatuses] = useState<Set<ItemStatus>>(new Set(STATUSES));
+  const [periode, setPeriode] = useState<Periode>("semua");
+  const currentYear = new Date().getFullYear();
+  const [tahun, setTahun] = useState<number>(currentYear);
+
+  const years = useMemo(() => {
+    const set = new Set<number>([currentYear]);
+    items.forEach((it) => { if (it.tanggal_pembelian) set.add(new Date(it.tanggal_pembelian).getFullYear()); });
+    items.forEach((it) => set.add(new Date(it.created_at).getFullYear()));
+    return [...set].sort((a, b) => b - a);
+  }, [items, currentYear]);
+
+  const inPeriode = (it: Item) => {
+    if (periode === "semua") return true;
+    const d = it.tanggal_pembelian ? new Date(it.tanggal_pembelian) : new Date(it.created_at);
+    if (d.getFullYear() !== tahun) return false;
+    const m = d.getMonth();
+    if (periode === "semester-1") return m <= 5;
+    if (periode === "semester-2") return m >= 6;
+    return true; // tahunan
+  };
 
   const filtered = useMemo(() => items.filter((it) =>
-    (!kategori || it.kategori === kategori) && statuses.has(it.status)
-  ), [items, kategori, statuses]);
+    (!kategori || it.kategori === kategori) && statuses.has(it.status) && inPeriode(it)
+  ), [items, kategori, statuses, periode, tahun]);
 
   const rows = filtered.map((it, i) => [
     i + 1,
@@ -28,13 +56,24 @@ export function ExportPanel({ items, onClose }: { items: Item[]; onClose: () => 
   ]);
 
   const tanggal = new Date().toISOString().slice(0, 10);
+  const periodeLabel = periode === "semua"
+    ? "Semua periode"
+    : `${PERIODE_LABEL[periode]} ${tahun}`;
+  const fileSuffix = periode === "semua" ? tanggal : `${periode}_${tahun}`;
 
   const exportXlsx = () => {
-    const ws = XLSX.utils.aoa_to_sheet([COLS, ...rows]);
+    const ws = XLSX.utils.aoa_to_sheet([
+      ["LAPORAN INVENTARIS — DISKOMINFOTIK PEKANBARU"],
+      [`Periode: ${periodeLabel}`],
+      [`Kategori: ${kategori || "Semua"}  |  Tanggal cetak: ${new Date().toLocaleDateString("id-ID")}`],
+      [],
+      COLS,
+      ...rows,
+    ]);
     ws["!cols"] = COLS.map(() => ({ wch: 20 }));
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Inventaris");
-    XLSX.writeFile(wb, `Inventaris_Diskominfo_Pekanbaru_${tanggal}.xlsx`);
+    XLSX.writeFile(wb, `Inventaris_Diskominfo_Pekanbaru_${fileSuffix}.xlsx`);
   };
 
   const exportPdf = () => {
@@ -44,12 +83,13 @@ export function ExportPanel({ items, onClose }: { items: Item[]; onClose: () => 
     doc.setFontSize(14);
     doc.text("LAPORAN INVENTARIS ALAT ELEKTRONIK", 148, 22, { align: "center" });
     doc.setFontSize(9); doc.setFont("helvetica", "normal");
-    doc.text(`Tanggal cetak: ${new Date().toLocaleDateString("id-ID")}`, 148, 28, { align: "center" });
+    doc.text(`Periode: ${periodeLabel}  |  Kategori: ${kategori || "Semua"}`, 148, 28, { align: "center" });
+    doc.text(`Tanggal cetak: ${new Date().toLocaleDateString("id-ID")}`, 148, 33, { align: "center" });
 
     autoTable(doc, {
       head: [COLS],
       body: rows.map(r => r.map(String)),
-      startY: 34,
+      startY: 39,
       styles: { fontSize: 8, cellPadding: 2 },
       headStyles: { fillColor: [20, 60, 60], textColor: 255 },
     });
@@ -60,7 +100,7 @@ export function ExportPanel({ items, onClose }: { items: Item[]; onClose: () => 
     doc.setFontSize(10); doc.setFont("helvetica", "bold");
     doc.text(`Total: ${filtered.length} alat  |  Bagus: ${counts.Bagus}  |  Dalam Perbaikan: ${counts["Dalam Perbaikan"]}  |  Rusak: ${counts.Rusak}`, 14, finalY + 10);
 
-    doc.save(`Inventaris_Diskominfo_Pekanbaru_${tanggal}.pdf`);
+    doc.save(`Inventaris_Diskominfo_Pekanbaru_${fileSuffix}.pdf`);
   };
 
   const toggleStatus = (s: ItemStatus) => {
@@ -71,7 +111,7 @@ export function ExportPanel({ items, onClose }: { items: Item[]; onClose: () => 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 p-4 backdrop-blur" onClick={onClose}>
-      <div onClick={(e) => e.stopPropagation()} className="w-full max-w-lg rounded-2xl border-2 border-foreground bg-card p-6 shadow-paper">
+      <div onClick={(e) => e.stopPropagation()} className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border-2 border-foreground bg-card p-6 shadow-paper">
         <div className="flex items-start justify-between">
           <div>
             <p className="font-mono text-xs uppercase tracking-widest text-accent">§ Ekspor laporan</p>
@@ -82,12 +122,35 @@ export function ExportPanel({ items, onClose }: { items: Item[]; onClose: () => 
 
         <div className="mt-6 space-y-5">
           <div>
+            <label className="mb-1.5 block font-mono text-[11px] uppercase tracking-widest text-muted-foreground">Periode</label>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <select value={periode} onChange={(e) => setPeriode(e.target.value as Periode)} className={selectCls}>
+                {(Object.keys(PERIODE_LABEL) as Periode[]).map((p) => (
+                  <option key={p} value={p}>{PERIODE_LABEL[p]}</option>
+                ))}
+              </select>
+              <select
+                value={tahun}
+                onChange={(e) => setTahun(Number(e.target.value))}
+                disabled={periode === "semua"}
+                className={selectCls + " disabled:opacity-50"}
+              >
+                {years.map((y) => <option key={y} value={y}>Tahun {y}</option>)}
+              </select>
+            </div>
+            <p className="mt-1.5 text-[11px] text-muted-foreground">
+              Berdasarkan tanggal pembelian alat (atau tanggal pendaftaran jika kosong).
+            </p>
+          </div>
+
+          <div>
             <label className="mb-1.5 block font-mono text-[11px] uppercase tracking-widest text-muted-foreground">Kategori</label>
-            <select value={kategori} onChange={(e) => setKategori(e.target.value as any)} className="w-full rounded-lg border-2 border-foreground/20 bg-background px-3 py-2.5 text-sm">
+            <select value={kategori} onChange={(e) => setKategori(e.target.value as any)} className={selectCls}>
               <option value="">Semua kategori</option>
               {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
+
           <div>
             <p className="mb-1.5 font-mono text-[11px] uppercase tracking-widest text-muted-foreground">Status</p>
             <div className="flex flex-wrap gap-2">
@@ -99,7 +162,10 @@ export function ExportPanel({ items, onClose }: { items: Item[]; onClose: () => 
               ))}
             </div>
           </div>
-          <p className="text-xs text-muted-foreground">{filtered.length} alat akan diekspor.</p>
+
+          <p className="rounded-lg bg-foreground/5 px-3 py-2 text-xs text-muted-foreground">
+            <strong className="text-foreground">{filtered.length} alat</strong> akan diekspor — {periodeLabel}.
+          </p>
         </div>
 
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
@@ -114,3 +180,5 @@ export function ExportPanel({ items, onClose }: { items: Item[]; onClose: () => 
     </div>
   );
 }
+
+const selectCls = "w-full rounded-lg border-2 border-foreground/20 bg-background px-3 py-2.5 text-sm";
