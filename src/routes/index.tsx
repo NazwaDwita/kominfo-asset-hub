@@ -253,8 +253,8 @@ function HomePage() {
             { num: "02", t: "Dalam Perbaikan", d: "Sedang diservis teknisi atau menunggu sparepart.", v: "fade-up" as const, color: "var(--status-repair)" },
             { num: "03", t: "Rusak", d: "Tidak dapat dipakai — menunggu penghapusan aset.", v: "blur" as const, color: "var(--status-broken)" },
           ].map((s, i) => (
-            <Reveal key={s.t} variant={s.v} delay={i * 120}>
-              <div className="relative overflow-hidden rounded-2xl border-2 border-foreground bg-card p-8 shadow-paper">
+            <Reveal key={s.t} variant={s.v} delay={i * 120} className="h-full">
+              <div className="relative flex h-full flex-col overflow-hidden rounded-2xl border-2 border-foreground bg-card p-8 shadow-paper">
                 <span
                   className="absolute right-4 top-4 h-3 w-3 rounded-full"
                   style={{ background: s.color, boxShadow: `0 0 0 4px ${s.color}33` }}
