@@ -4,6 +4,7 @@ import heroCollage from "@/assets/hero-collage.jpg";
 import { listItems, CATEGORIES, CATEGORY_EMOJI } from "@/lib/items";
 import { ArrowUpRight, Radio, Wrench, Building2, Cpu, Server, Camera } from "lucide-react";
 import { Reveal, Typewriter } from "@/components/Reveal";
+import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -19,6 +20,7 @@ export const Route = createFileRoute("/")({
 
 function HomePage() {
   const { data: items = [] } = useQuery({ queryKey: ["items"], queryFn: listItems });
+  const { isAdmin } = useAuth();
 
   const total = items.length;
   const bagus = items.filter((i) => i.status === "Bagus").length;
@@ -51,12 +53,14 @@ function HomePage() {
                 Jelajahi inventaris
                 <ArrowUpRight className="h-4 w-4 transition group-hover:rotate-45" />
               </Link>
-              <Link
-                to="/inventaris/baru"
-                className="inline-flex items-center gap-2 rounded-full border border-foreground/20 px-6 py-3 text-sm font-medium hover:bg-foreground/5"
-              >
-                Daftarkan alat baru
-              </Link>
+              {isAdmin && (
+                <Link
+                  to="/inventaris/baru"
+                  className="inline-flex items-center gap-2 rounded-full border border-foreground/20 px-6 py-3 text-sm font-medium hover:bg-foreground/5"
+                >
+                  Daftarkan alat baru
+                </Link>
+              )}
             </div>
 
             <dl className="mt-12 grid grid-cols-2 gap-6 border-t border-foreground/10 pt-6 sm:grid-cols-4 animate-fade-up stagger-4">
@@ -264,24 +268,26 @@ function HomePage() {
           ))}
         </div>
 
-        <Reveal variant="fade-up" delay={200}>
-          <div className="mt-16 flex flex-col items-start gap-6 rounded-3xl border-2 border-foreground bg-foreground p-10 text-background md:flex-row md:items-center md:justify-between md:p-14">
-            <div className="flex items-center gap-4">
-              <Building2 className="h-10 w-10 text-accent" />
-              <div>
-                <p className="font-mono text-xs uppercase tracking-widest text-accent">Diskominfotik Pekanbaru</p>
-                <p className="mt-1 font-display text-3xl font-black md:text-4xl">Mulai catat hari ini.</p>
+        {isAdmin && (
+          <Reveal variant="fade-up" delay={200}>
+            <div className="mt-16 flex flex-col items-start gap-6 rounded-3xl border-2 border-foreground bg-foreground p-10 text-background md:flex-row md:items-center md:justify-between md:p-14">
+              <div className="flex items-center gap-4">
+                <Building2 className="h-10 w-10 text-accent" />
+                <div>
+                  <p className="font-mono text-xs uppercase tracking-widest text-accent">Diskominfotik Pekanbaru</p>
+                  <p className="mt-1 font-display text-3xl font-black md:text-4xl">Mulai catat hari ini.</p>
+                </div>
               </div>
+              <Link
+                to="/inventaris/baru"
+                className="inline-flex items-center gap-2 rounded-full bg-accent px-7 py-4 text-sm font-medium text-accent-foreground transition hover:translate-y-[-2px]"
+              >
+                + Daftarkan alat baru
+                <ArrowUpRight className="h-4 w-4" />
+              </Link>
             </div>
-            <Link
-              to="/inventaris/baru"
-              className="inline-flex items-center gap-2 rounded-full bg-accent px-7 py-4 text-sm font-medium text-accent-foreground transition hover:translate-y-[-2px]"
-            >
-              + Daftarkan alat baru
-              <ArrowUpRight className="h-4 w-4" />
-            </Link>
-          </div>
-        </Reveal>
+          </Reveal>
+        )}
       </section>
     </>
   );
