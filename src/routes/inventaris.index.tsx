@@ -187,28 +187,17 @@ function InventarisPage() {
         )}
       </div>
 
-      {/* Quick chip filters */}
-      <div className="mt-4 flex flex-wrap gap-2">
-        {(search.kategori || search.status || search.q || search.sort) && (
+      {/* Reset filter */}
+      {(search.kategori || search.status || search.q || search.sort) && (
+        <div className="mt-4 flex flex-wrap gap-2 animate-fade-up">
           <button
             onClick={() => navigate({ search: {} })}
             className="rounded-full border border-foreground/20 bg-foreground px-3 py-1 text-xs text-background"
           >
             Reset filter ✕
           </button>
-        )}
-        {STATUSES.map((s) => (
-          <button
-            key={s}
-            onClick={() => setParam("status", search.status === s ? undefined : s)}
-            className={`rounded-full border px-3 py-1 text-xs font-medium transition ${
-              search.status === s ? STATUS_STYLES[s] + " font-bold" : "border-foreground/20 hover:bg-foreground/5"
-            }`}
-          >
-            {s}
-          </button>
-        ))}
-      </div>
+        </div>
+      )}
 
       {/* Grid */}
       <div className="mt-8">
