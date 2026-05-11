@@ -143,32 +143,39 @@ function InventarisPage() {
             className="w-full rounded-full border-2 border-foreground bg-card py-3 pl-11 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
-        <select
-          value={search.kategori ?? ""}
-          onChange={(e) => setParam("kategori", (e.target.value || undefined) as ItemCategory | undefined)}
-          className="select-anim rounded-full border-2 border-foreground bg-card px-4 py-3 text-sm font-medium outline-none"
-        >
-          <option value="">Semua kategori</option>
-          {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-        </select>
-        <select
-          value={search.status ?? ""}
-          onChange={(e) => setParam("status", (e.target.value || undefined) as ItemStatus | undefined)}
-          className="select-anim rounded-full border-2 border-foreground bg-card px-4 py-3 text-sm font-medium outline-none"
-        >
-          <option value="">Semua status</option>
-          {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
-        </select>
-        <div className="relative">
-          <ArrowUpDown className="pointer-events-none absolute left-3.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+        <span className="select-wrap">
+          <select
+            value={search.kategori ?? ""}
+            onChange={(e) => setParam("kategori", (e.target.value || undefined) as ItemCategory | undefined)}
+            className="select-anim rounded-full border-2 border-foreground bg-card px-4 py-3 text-sm font-medium outline-none"
+          >
+            <option value="">Semua kategori</option>
+            {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+          </select>
+          <span className="chev" />
+        </span>
+        <span className="select-wrap">
+          <select
+            value={search.status ?? ""}
+            onChange={(e) => setParam("status", (e.target.value || undefined) as ItemStatus | undefined)}
+            className="select-anim rounded-full border-2 border-foreground bg-card px-4 py-3 text-sm font-medium outline-none"
+          >
+            <option value="">Semua status</option>
+            {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+          </select>
+          <span className="chev" />
+        </span>
+        <span className="select-wrap block">
+          <ArrowUpDown className="pointer-events-none absolute left-3.5 top-1/2 z-10 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
           <select
             value={sort}
             onChange={(e) => setParam("sort", e.target.value as Sort)}
-            className="select-anim w-full rounded-full border-2 border-foreground bg-card py-3 pl-9 pr-4 text-sm font-medium outline-none"
+            className="select-anim w-full rounded-full border-2 border-foreground bg-card py-3 pl-9 pr-10 text-sm font-medium outline-none"
           >
             {SORTS.map((s) => <option key={s} value={s}>{SORT_LABEL[s]}</option>)}
           </select>
-        </div>
+          <span className="chev" />
+        </span>
         {isAdmin && (
           <div className="flex gap-2">
             <button
