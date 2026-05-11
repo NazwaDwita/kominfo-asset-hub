@@ -125,7 +125,10 @@ function SiteHeader() {
         </nav>
         <div className="flex items-center gap-2">
           {user && isAdmin && (
-            <span className="hidden rounded-full bg-accent px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-accent-foreground sm:inline-block">
+            <span
+              key="admin-badge"
+              className="hidden animate-admin-flash rounded-full bg-accent px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-accent-foreground sm:inline-block"
+            >
               ● Admin
             </span>
           )}
