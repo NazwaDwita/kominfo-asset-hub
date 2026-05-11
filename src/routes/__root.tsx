@@ -4,9 +4,11 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
+import { useEffect, useRef, useState } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider, useAuth } from "@/lib/auth";
 import { LogIn, LogOut } from "lucide-react";
@@ -123,7 +125,10 @@ function SiteHeader() {
         </nav>
         <div className="flex items-center gap-2">
           {user && isAdmin && (
-            <span className="hidden rounded-full bg-accent px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-accent-foreground sm:inline-block">
+            <span
+              key="admin-badge"
+              className="hidden animate-admin-flash rounded-full bg-accent px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-accent-foreground sm:inline-block"
+            >
               ● Admin
             </span>
           )}
@@ -179,6 +184,26 @@ function SiteFooter() {
   );
 }
 
+function PageTransition({ children }: { children: React.ReactNode }) {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { isAdmin } = useAuth();
+  const prevAdmin = useRef(isAdmin);
+  const [adminKey, setAdminKey] = useState(0);
+
+  useEffect(() => {
+    if (prevAdmin.current !== isAdmin) {
+      prevAdmin.current = isAdmin;
+      setAdminKey((k) => k + 1);
+    }
+  }, [isAdmin]);
+
+  return (
+    <main key={`${pathname}-${adminKey}`} className="page-transition flex-1">
+      {children}
+    </main>
+  );
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
@@ -186,7 +211,7 @@ function RootComponent() {
       <AuthProvider>
         <div className="flex min-h-screen flex-col">
           <SiteHeader />
-          <main className="flex-1"><Outlet /></main>
+          <PageTransition><Outlet /></PageTransition>
           <SiteFooter />
         </div>
         <Toaster />

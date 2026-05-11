@@ -187,6 +187,49 @@
     color: var(--accent);
     animation: caret-blink 0.9s steps(1) infinite;
   }
+
+  /* Animated select trigger */
+  .select-anim {
+    transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1),
+                box-shadow 0.25s ease,
+                background-color 0.25s ease,
+                border-color 0.25s ease;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
+                      linear-gradient(135deg, currentColor 50%, transparent 50%);
+    background-position: calc(100% - 18px) 55%, calc(100% - 13px) 55%;
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+    padding-right: 2.25rem;
+  }
+  .select-anim:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px -8px oklch(0.18 0.025 200 / 0.35);
+    background-color: oklch(0.18 0.025 200 / 0.04);
+  }
+  .select-anim:focus {
+    box-shadow: 0 0 0 3px oklch(0.38 0.07 195 / 0.25);
+    border-color: var(--primary);
+  }
+  .select-anim option {
+    animation: fade-up 0.25s ease both;
+  }
+
+  /* Page transition */
+  @keyframes page-in {
+    from { opacity: 0; transform: translateY(14px) scale(0.995); filter: blur(4px); }
+    to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+  }
+  .page-transition { animation: page-in 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+
+  /* Admin mode flash */
+  @keyframes admin-flash {
+    0%   { opacity: 0; transform: translateY(-6px) scale(0.9); }
+    50%  { opacity: 1; transform: translateY(0) scale(1.08); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .animate-admin-flash { animation: admin-flash 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
 }
 
 @font-face {

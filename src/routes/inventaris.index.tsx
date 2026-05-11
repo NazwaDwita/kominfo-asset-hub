@@ -146,7 +146,7 @@ function InventarisPage() {
         <select
           value={search.kategori ?? ""}
           onChange={(e) => setParam("kategori", (e.target.value || undefined) as ItemCategory | undefined)}
-          className="rounded-full border-2 border-foreground bg-card px-4 py-3 text-sm font-medium outline-none"
+          className="select-anim rounded-full border-2 border-foreground bg-card px-4 py-3 text-sm font-medium outline-none"
         >
           <option value="">Semua kategori</option>
           {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
@@ -154,7 +154,7 @@ function InventarisPage() {
         <select
           value={search.status ?? ""}
           onChange={(e) => setParam("status", (e.target.value || undefined) as ItemStatus | undefined)}
-          className="rounded-full border-2 border-foreground bg-card px-4 py-3 text-sm font-medium outline-none"
+          className="select-anim rounded-full border-2 border-foreground bg-card px-4 py-3 text-sm font-medium outline-none"
         >
           <option value="">Semua status</option>
           {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
@@ -164,7 +164,7 @@ function InventarisPage() {
           <select
             value={sort}
             onChange={(e) => setParam("sort", e.target.value as Sort)}
-            className="w-full rounded-full border-2 border-foreground bg-card py-3 pl-9 pr-4 text-sm font-medium outline-none"
+            className="select-anim w-full rounded-full border-2 border-foreground bg-card py-3 pl-9 pr-4 text-sm font-medium outline-none"
           >
             {SORTS.map((s) => <option key={s} value={s}>{SORT_LABEL[s]}</option>)}
           </select>
@@ -187,28 +187,17 @@ function InventarisPage() {
         )}
       </div>
 
-      {/* Quick chip filters */}
-      <div className="mt-4 flex flex-wrap gap-2">
-        {(search.kategori || search.status || search.q || search.sort) && (
+      {/* Reset filter */}
+      {(search.kategori || search.status || search.q || search.sort) && (
+        <div className="mt-4 flex flex-wrap gap-2 animate-fade-up">
           <button
             onClick={() => navigate({ search: {} })}
             className="rounded-full border border-foreground/20 bg-foreground px-3 py-1 text-xs text-background"
           >
             Reset filter ✕
           </button>
-        )}
-        {STATUSES.map((s) => (
-          <button
-            key={s}
-            onClick={() => setParam("status", search.status === s ? undefined : s)}
-            className={`rounded-full border px-3 py-1 text-xs font-medium transition ${
-              search.status === s ? STATUS_STYLES[s] + " font-bold" : "border-foreground/20 hover:bg-foreground/5"
-            }`}
-          >
-            {s}
-          </button>
-        ))}
-      </div>
+        </div>
+      )}
 
       {/* Grid */}
       <div className="mt-8">
