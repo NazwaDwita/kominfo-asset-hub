@@ -184,6 +184,26 @@ function SiteFooter() {
   );
 }
 
+function PageTransition({ children }: { children: React.ReactNode }) {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { isAdmin } = useAuth();
+  const prevAdmin = useRef(isAdmin);
+  const [adminKey, setAdminKey] = useState(0);
+
+  useEffect(() => {
+    if (prevAdmin.current !== isAdmin) {
+      prevAdmin.current = isAdmin;
+      setAdminKey((k) => k + 1);
+    }
+  }, [isAdmin]);
+
+  return (
+    <main key={`${pathname}-${adminKey}`} className="page-transition flex-1">
+      {children}
+    </main>
+  );
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
@@ -191,7 +211,7 @@ function RootComponent() {
       <AuthProvider>
         <div className="flex min-h-screen flex-col">
           <SiteHeader />
-          <main className="flex-1"><Outlet /></main>
+          <PageTransition><Outlet /></PageTransition>
           <SiteFooter />
         </div>
         <Toaster />
