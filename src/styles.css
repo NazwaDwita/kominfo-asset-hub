@@ -196,12 +196,7 @@
                 border-color 0.25s ease;
     appearance: none;
     -webkit-appearance: none;
-    background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
-                      linear-gradient(135deg, currentColor 50%, transparent 50%);
-    background-position: calc(100% - 18px) 55%, calc(100% - 13px) 55%;
-    background-size: 5px 5px, 5px 5px;
-    background-repeat: no-repeat;
-    padding-right: 2.25rem;
+    padding-right: 2.5rem;
   }
   .select-anim:hover {
     transform: translateY(-2px);
@@ -213,15 +208,45 @@
     border-color: var(--primary);
   }
   .select-anim option {
-    animation: fade-up 0.25s ease both;
+    animation: option-pop 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    background-color: var(--card);
+    color: var(--foreground);
+  }
+  @keyframes option-pop {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
 
-  /* Page transition */
-  @keyframes page-in {
-    from { opacity: 0; transform: translateY(14px) scale(0.995); filter: blur(4px); }
-    to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+  /* Wrapper for native select with animated chevron */
+  .select-wrap { position: relative; display: inline-block; }
+  .select-wrap.block { display: block; }
+  .select-wrap > .chev {
+    pointer-events: none;
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    width: 0.55rem;
+    height: 0.55rem;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: translateY(-75%) rotate(45deg);
+    transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+                border-color 0.25s ease;
+    opacity: 0.75;
   }
-  .page-transition { animation: page-in 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+  .select-wrap:hover > .chev { opacity: 1; }
+  .select-wrap:focus-within > .chev {
+    transform: translateY(-25%) rotate(-135deg);
+    color: var(--primary);
+    opacity: 1;
+  }
+
+  /* Page transition — slide + fade */
+  @keyframes page-slide-in {
+    from { opacity: 0; transform: translateX(40px); filter: blur(6px); }
+    to   { opacity: 1; transform: translateX(0); filter: blur(0); }
+  }
+  .page-transition { animation: page-slide-in 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
 
   /* Admin mode flash */
   @keyframes admin-flash {
